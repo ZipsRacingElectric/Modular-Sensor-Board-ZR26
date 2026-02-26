@@ -16,7 +16,8 @@ ALLINC += src
 
 # Source files
 CSRC =	$(ALLCSRC)		\
-		src/main.c
+		src/main.c		\
+		src/modular_sensor_board.c
 
 # Common library includes
 include common/src/debug.mk
