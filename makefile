@@ -1,5 +1,5 @@
 # Project name
-PROJECT = stub
+PROJECT = msb_zr26
 
 # Imported files
 CHIBIOS  := $(CHIBIOS_SOURCE_PATH)
