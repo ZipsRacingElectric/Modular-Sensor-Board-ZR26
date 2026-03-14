@@ -18,33 +18,6 @@ extern mc24lc32_t physicalEeprom;
 
 extern virtualEeprom_t virtualEeprom;
 
-// Config ----------------------------------------------------------------------------------------------------------------------------------
-
-typedef struct  
-{
-    /// @brief First 16 bytes on EEPROM reserved for magic string  
-    uint8_t pad0 [16]; // Address 0x0000
-
-    /// @brief I2C address of daughter ADC
-    uint8_t i2cAddr; // Address 0x0010
-
-    uint8_t pad1 [3]; // 3 bytes of padding Address 0x0013
-
-    /// @brief Min range of daughter ADC sample
-    float sampleMin;
-
-    /// @brief Max range of daughter ADC sample
-    float sampleMax;
-
-    /// @brief Min range of daughter ADC value
-    float valueMin;
-
-    /// @brief Max range of daughter ADC value
-    float valueMax;
-
-
-} msbEepromMap_t;
-
 // Functions --------------------------------------------------------------------------------------------------------------------------------
 
 /**
@@ -52,13 +25,7 @@ typedef struct
  * 
  * @return True if successful, false if hardware failure occured 
  */
-bool peripheralsInit(void);
+bool peripheralsInit(const I2CConfig* i2cConfig, const mc24lc32Config_t* eepromConfig);
 
-/**
- * @brief Get the Eeprom Map object
- * 
- * @return Casted pointer to EEPROM Map
- */
-msbEepromMap_t* getEepromMap(void);
 
 #endif // PERIPHERALS_H

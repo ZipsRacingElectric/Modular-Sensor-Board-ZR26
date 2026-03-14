@@ -17,7 +17,14 @@ ALLINC += src
 # Source files
 CSRC =	$(ALLCSRC)		\
 		src/main.c		\
-		src/modular_sensor_board.c
+		src/modular_sensor_board.c \
+		src/peripherals/peripherals.c \
+		common/src/peripherals/i2c/mc24lc32.c \
+		src/peripherals/i2c/max11614.c \
+		src/peripherals/can/msb_can.c \
+		src/peripherals/i2c/daughterADC.c \
+		src/peripherals/eeprom_map.c
+
 
 # Common library includes
 include common/src/debug.mk

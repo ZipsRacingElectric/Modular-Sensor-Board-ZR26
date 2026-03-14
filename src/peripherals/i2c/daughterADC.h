@@ -25,11 +25,12 @@ typedef struct {
 	/// operation may fail.
 	sysinterval_t timeout;
 
-
 } daughterADCConfig_t;
 
 typedef struct {
+
     const daughterADCConfig_t* config;
+
 } daughterADC_t;
 
 // Functions ------------------------------------------------------------------------------------------------------------------
@@ -44,13 +45,16 @@ typedef struct {
 bool daughterADCInit(daughterADC_t* dADC, const daughterADCConfig_t* config);
 
 /**
- * @brief Helper function to sample from ADC on MSB, without interacting with static I2C functions directly.
+ * @brief Helper I2C functions allows the Modular Sensor Board to interact with any daughter ADC, reduces boilerplate when changing daughter ADCs.
  * 
- * @param dADC The device to get raw value from.
- * @param reg The register being read from.
- * @param rawValue The raw value being sampled.
- * @return True if I2C transmit sucessful, false if I2C transmit failed. 
+ * @param dADC The device that the I2C functions will interact with.
+ * @param data The bits / byte of data being written to the ADC.
+ * @param value The bits / byte being read from the ADC.
+ * @return True if I2C transmit is successful, False if otherwise. 
  */
-bool getRawADC(daughterADC_t* dADC, uint8_t reg, uint16_t* rawValue);
+bool write8bit(daughterADC_t* dADC, uint8_t data);
+bool read8bit(daughterADC_t* dADC, uint8_t* value);
+bool write12bit(daughterADC_t* dADC, uint16_t data);
+bool read12bit(daughterADC_t* dADC, uint16_t* value);
 
 #endif

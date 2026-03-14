@@ -21,7 +21,7 @@ typedef struct
 
 } msbCanConfig_t;
 
-typedef struct 
+typedef struct
 {
     const msbCanConfig_t* config;
 } msbCan_t;

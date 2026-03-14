@@ -1,23 +1,25 @@
 #include "msb_transmit.h"
 
-// Globals --------------------------------------------------------------------------------------------------------------------
+// Message IDs --------------------------------------------------------------------------------------------------------------------
 
-#define TRANSMIT_BASE_ID 0x400
+#define STATUS_MESSAGE_ID       0x300
+#define ADC_VALUE_MESSAGE_ID    0x400
 
 // Functions ------------------------------------------------------------------------------------------------------------------
 
+uint8_t test_data = 100;
 
-bool msbCanTransmit(msbCan_t* can)
+bool transmitADCValue(msbCan_t* can)
 {
     CANTxFrame transmit = 
     {
         .DLC = 1,
         .RTR = 1,
         .IDE = CAN_IDE_STD,
-        .SID = TRANSMIT_BASE_ID,
+        .SID = ADC_VALUE_MESSAGE_ID,
         .data8 = 
         {
-            // Some data 8 channels on each ADC board
+            test_data
         }
     };
 
