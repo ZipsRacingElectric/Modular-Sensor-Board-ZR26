@@ -11,20 +11,21 @@
 // Includes -------------------------------------------------------------------------------------------------------------------
 
 #include "hal.h"
- 
-#include "peripherals/interface/analog_sensor.h"
-#include "peripherals/i2c/daughterADC.h"
-#include "peripherals/i2c/max11614.h"
-#include "peripherals/can/msb_can.h"
+
 #include "peripherals/peripherals.h"
 #include "peripherals/eeprom_map.h"
 
+#include "peripherals/i2c/max11614.h"
+#include "peripherals/i2c/daughterADC.h"
+#include "peripherals/adc_sensor.h"
+#include "peripherals/interface/analog_sensor.h"
+
+#include "peripherals/can/msb_can.h"
+#include "peripherals/can/msb_transmit.h"
 
 // Configs --------------------------------------------------------------------------------------------------------------------
 typedef struct {
     
-    /// @brief The sensor to call after sampling successfully.
-	analogSensor_t* sensor;
 
 } msbConfig_t;
 
@@ -35,6 +36,13 @@ typedef struct {
     max11614_t adc;
 
     max11614Results_t adcResults;
+
+    msbCan_t can;
+
+    adcSensor_t sensors[6]; // 2 differntial + 4 single ended
+
+    /// @brief The configuration to use on the 6 differnt sensors, gotten from EEPROM
+    adcSensorConfig_t* sensorConfigs[6];
 
 } msb_t;
 
@@ -56,6 +64,5 @@ bool msbInit(msb_t* msb, const msbConfig_t* config);
  * @return True if successful, false otherwise. 
  */
 bool msbSample (msb_t* msb);
-
 
 #endif // MODULAR_SENSOR_BOARD_H

@@ -34,29 +34,8 @@ int main (void)
 
 	// Set configs and initalize ----------------------------------------------------------------------------------------------
 
-	// Start Can Driver
-	static const CANConfig CAN_DRIVER_CONFIG =
-	{
-	.mcr = CAN_MCR_ABOM |
-		CAN_MCR_AWUM |
-		CAN_MCR_TXFP,
-	.btr = CAN_BTR_SJW (0) |
-		CAN_BTR_TS2 (1) |
-		CAN_BTR_TS1 (10) |
-		CAN_BTR_BRP (2)
-	};
-    
-	canStart(&CAND1, &CAN_DRIVER_CONFIG);
-	palClearLine (LINE_CAN1_STBY);
-
-	// Initailize Modular Sensor Board 
-
-	static msbConfig_t msbConfig = 
-	{
-		.sensor = NULL
-	};
-
 	static msb_t msb;
+	static msbConfig_t msbConfig = { }; 
 
 	if (!msbInit(&msb, &msbConfig)) 
 	{
@@ -65,6 +44,16 @@ int main (void)
 	}
 
 	// Main Loop ----------------------------------------------------------------------------------------------------------------
-	while (true)
+	while (true) 
+	{
+		if (!transmitADCValue(&msb.can, msb.sensors))
+		{
+			debugPrintf("Failed to transmit\r\n");
+		}
+		else 
+		{
+			debugPrintf("Can Transmit Successful\r\n");
+		}
 		chThdSleepMilliseconds (500);
+	}
 }

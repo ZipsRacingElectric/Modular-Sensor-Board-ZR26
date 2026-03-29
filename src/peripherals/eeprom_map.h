@@ -39,12 +39,6 @@ typedef struct
     /// @brief Max range of daughter ADC value
     float valueMax; // Address 0x0022
 
-    ///// @brief Is the ADC channel unipolar or bipolar
-    //max11614Polarity_t polarity; // Address 0x0024
-//
-    ///// @brief Is the ADC channel single-ended or differentbiable
-    //max11614Mode_t mode; // Address 0x0038
-
 } msbEepromMap_t;
 
 

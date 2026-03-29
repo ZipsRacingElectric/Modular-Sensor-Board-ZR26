@@ -17,6 +17,7 @@
 typedef struct 
 {
     CANDriver* driver;
+    const CANConfig* canConfig;
     sysinterval_t timeout;
 
 } msbCanConfig_t;

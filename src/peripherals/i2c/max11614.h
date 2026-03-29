@@ -120,6 +120,7 @@ typedef struct
     i2caddr_t         addr;
     I2CDriver*        i2c;
     sysinterval_t     timeout;
+    uint16_t          sampleVdd;
 
 } max11614Config_t;
 
@@ -173,4 +174,4 @@ uint8_t max11614BuildConfigByte(max11614ScanMode_t scan, uint8_t channelSelect, 
  */
 bool max11614ReadChannels(max11614_t* max11614, max11614Results_t* results);
 
-#endif 
+#endif // MAX11614_H

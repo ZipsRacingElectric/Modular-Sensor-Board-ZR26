@@ -3,6 +3,8 @@
 #include "peripherals.h"
 #include "eeprom_map.h"
 
+#include "debug.h"
+
 // Global Peripherals -----------------------------------------------------------------------------------------------------------------------
 
 virtualEeprom_t virtualEeprom;
@@ -12,15 +14,20 @@ virtualEeprom_t virtualEeprom;
 bool peripheralsInit(const I2CConfig* i2cConfig, const mc24lc32Config_t* eepromConfig) 
 {
     // I2C 1 Driver Initialization.
-    if (i2cStart(&I2CD1, i2cConfig) != MSG_OK ) {
+    if (i2cStart(&I2CD1, i2cConfig) != MSG_OK ) 
+    {
+        debugPrintf("I2C Init Failed\r\n");
         return false;
     }
 
     // Physical EEPROM initialization (only exit early if a failure occurred).
-	if (!mc24lc32Init (&physicalEeprom, eepromConfig) && physicalEeprom.state == MC24LC32_STATE_FAILED) {
+	if (!mc24lc32Init (&physicalEeprom, eepromConfig) && physicalEeprom.state == MC24LC32_STATE_FAILED) 
+    {
+        debugPrintf("Pysical EEPROM Init Failed\r\n");
         return false;
     }
-    if (physicalEeprom.state == MC24LC32_STATE_INVALID) {
+    if (physicalEeprom.state == MC24LC32_STATE_INVALID) 
+    {
         // Write default values, but do not validate EEPROM state, so someone has to manually validate
         float defaultRawMin = 0.0f;
         float defaultRawMax = 4095.0f;

@@ -54,7 +54,7 @@ bool max11614Init(max11614_t* max11614, const max11614Config_t* config)
         MAX11614_DIFFERENTIABLE
     );
 
-    // Single Ended Channels Config Byte not built in init, as it changes per channel
+    // (NOTE): Single Ended Channels Config Byte not built in init, as it changes per channel
     // Is built inside of max11614ReadChannel
 
     // Write setupByte 
@@ -71,7 +71,7 @@ bool max11614ReadChannels(max11614_t* max11614, max11614Results_t *results)
     // Read differential channels AIN0/1 and AIN2/3
     status &= write8bit(&max11614->dADC, max11614->configDiff);
     status &= read12bit(&max11614->dADC, &results->differentiable[0]);
-    status &= read12bit(&max11614->dADC, &results->differentiable[1]);
+    status &= read12bit(&max11614->dADC, &results->differentiable[1]); 
 
     // Build Single Ended Channels Config Byte inside of for loop.
     // MAX11614 Cannot Scan Upper Half of channels, must scan each chanel one at a time. 
@@ -83,7 +83,7 @@ bool max11614ReadChannels(max11614_t* max11614, max11614Results_t *results)
             MAX11614_SINGLE_ENDED
         );
         status &= write8bit(&max11614->dADC, configSingle);
-        status &= read12bit((daughterADC_t*)max11614, &results->singleEnded[i]);
+        status &= read12bit(&max11614->dADC, &results->singleEnded[i]);
     }
     return status;
 }
