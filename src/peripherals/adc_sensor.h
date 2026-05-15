@@ -15,6 +15,15 @@
 
 #include "peripherals/interface/analog_sensor.h"
 
+// Sensor Count Globals -----------------------------------------------------------------------------------------------------
+
+/// @brief Max sensor count, 8 channels on MAX11614
+#define MAX_SENSOR_COUNT 8 
+
+/// @brief Calculated number of channels for differentiable and single ended sensors, must be less than number of channels 
+#define SENSOR_LAYOUT_VALID(sensorCount, diffCount) \
+    (((diffCount) * 2) + ((sensorCount) - (diffCount)) <= MAX_SENSOR_COUNT)
+
 // Configs -----------------------------------------------------------------------------------------------------------------
 
 typedef struct

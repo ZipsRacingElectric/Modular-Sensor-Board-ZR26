@@ -3,16 +3,12 @@
 #include "debug.h"
 
 // Gloabls 
-#define MAGIC_STRING "MSB_2026.02.27"
-#define ADC_SENSORS 6
-#define SINGLE_ENDED_SENSORS 4
-
-// Global MSB Drivers ---------------------------------------------------------------------------------------------------------
+#define MAGIC_STRING "MSB_2026.02.27" 
+// Global MSB Objects ----------------------------------------------------------------------------------------------------------------
 
 static max11614_t   msbADC;
 static msbCan_t     msbCan;
 mc24lc32_t physicalEeprom;
-//static analogSensor_t msbSensor;
 
 // Driver Configuration ---------------------------------------------------------------------------------------------------------------
 
@@ -25,8 +21,8 @@ static const I2CConfig I2C1_CONFIG =
 }; 
 
 /// @brief Configuration for the on-board EEPROM.
-static const mc24lc32Config_t PHYSICAL_EEPROM_CONFIG = {
-    .addr = 0x016,
+const mc24lc32Config_t PHYSICAL_EEPROM_CONFIG = {
+    .addr = 0x50,
     .i2c = &I2CD1,
     .timeout = TIME_MS2I(500),
     .magicString = MAGIC_STRING,
@@ -36,9 +32,9 @@ static const mc24lc32Config_t PHYSICAL_EEPROM_CONFIG = {
 static const max11614Config_t ADC_CONFIG =
 {
     .addr = 0x33,
-    .i2c = &I2CD1,
+    .i2c = &I2CD2,
     .timeout = TIME_MS2I(20),
-    .sampleVdd = 0,     // Using internal reference voltage 4.096V
+    .sampleVdd = 4096,     // Using internal reference voltage 4.096V
 };
 
 /// @brief Configuration of the Can Driver
@@ -73,6 +69,17 @@ bool msbInit(msb_t* msb, const msbConfig_t* config) {
     // Store the configuration
     msb->config = config;
 
+    // Initialize CAN Driver
+    if (!msbCanInit(&msbCan, &CAN_CONFIG))
+    {
+        debugPrintf("canInit Failed\r\n");
+        return false;
+    }
+
+    // Start CAN Thread
+    msbReceiveStart();
+    debugPrintf("Successfully started recieve can thread\r\n");
+
     // Initialize I2C Driver and EEPROM Driver
     if (!peripheralsInit(&I2C1_CONFIG, &PHYSICAL_EEPROM_CONFIG))
     {
@@ -80,8 +87,35 @@ bool msbInit(msb_t* msb, const msbConfig_t* config) {
         return false;
     }
 
+    if (physicalEeprom.state == MC24LC32_STATE_INVALID)
+    {
+        debugPrintf("EEPROM State invalid, use CAN EEPROM cli to write valid configurations to board.");
+        return true;
+    }
+    
     // Populate "on the fly" Configs from EEPROM
     msbEepromMap_t* eeprom = getEepromMap();
+
+    // Read actual board config from EEPROM
+    msb->sensorCount       = eeprom->sensorCount;
+    msb->differentiableCount = eeprom->differentiableCount;
+
+    debugPrintf("sensorCount = %d, differentiableCount = %d\r\n", 
+    msb->sensorCount, msb->differentiableCount);
+
+    // Validate sensor count from EEPROM is not greater than the max sensor count of the ADC
+    if (msb->sensorCount == 0 || msb->sensorCount > MAX_SENSOR_COUNT) 
+    {
+        debugPrintf("Invalid sensorCount in EEPROM: %d\r\n", msb->sensorCount);
+        return true;
+    }
+
+    // Validate the differentiable sensor count is not larger than is allowed by ADC
+    if (!SENSOR_LAYOUT_VALID(msb->sensorCount, msb->differentiableCount)) 
+    {
+        debugPrintf("Sensor Layout exceeds physical channel count\r\n");
+        return true;
+    }
 
     // Intialize MAX11614 ADC Driver
     if (!max11614Init(&msbADC, &ADC_CONFIG))
@@ -90,20 +124,16 @@ bool msbInit(msb_t* msb, const msbConfig_t* config) {
         return false;
     }
 
-    // Initialize CAN Driver
-    if (!msbCanInit(&msbCan, &CAN_CONFIG))
-    {
-        debugPrintf("canInit Failed\r\n");
-        return false;
-    }
-    
     // Initialize ADC Analog Sensors
-    for (int i = 0; i < ADC_SENSORS; i++) 
+    for (int i = 0; i < msb->sensorCount; i++) 
     {
-        if (!adcSensorInit(&msb->sensors[i], msb->sensorConfigs[i]))
+        // Copy the EEPROM values to the sensor configs
+        msb->sensorConfigs[i] = eeprom->sensorConfigs[i];
+
+        if (!adcSensorInit(&msb->sensors[i], &msb->sensorConfigs[i]))
         {
             debugPrintf("adcSensorInit failed on channel %d\r\n", i);
-            return false;
+            return true;
         }
     }
         
@@ -113,23 +143,15 @@ bool msbInit(msb_t* msb, const msbConfig_t* config) {
 }
 
 bool msbSample (msb_t* msb) {
-    // Call I2C functions to read ADC data 
-    if (!max11614ReadChannels(&msb->adc, &msb->adcResults)) return false;
 
-    // Push differntiable sample data into sensors 
-    analogSensorUpdate((analogSensor_t*) &msb->sensors[0], msb->adcResults.differentiable[0], ADC_CONFIG.sampleVdd);
-    analogSensorUpdate((analogSensor_t*) &msb->sensors[1], msb->adcResults.differentiable[1], ADC_CONFIG.sampleVdd);
+    if (!max11614ReadChannels(&msbADC, &msb->adcResults, msb->differentiableCount, msb->sensorCount)) return false;
 
-    // Push single ended sample data into sensors
-    for (int i = 0; i < SINGLE_ENDED_SENSORS; i++) 
-    {   
-        // Offset i by 2 to not overwrite differentiable sensors
-        analogSensorUpdate((analogSensor_t*) &msb->sensors[i + 2], msb->adcResults.singleEnded[i], ADC_CONFIG.sampleVdd);
+    for (int i = 0; i < msb->sensorCount; ++i)
+    {
+        analogSensorUpdate((analogSensor_t*)&msb->sensors[i], msb->adcResults.channels[i], ADC_CONFIG.sampleVdd);
     }
 
-    // Use sensor to interpolate sampled data
-
-    // Call Can transmit function
+    transmitADCValue(&msbCan, msb->sensors, msb->sensorCount);
 
     return true;
 }

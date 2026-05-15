@@ -2,6 +2,8 @@
 
 #include "controls/lerp.h"
 
+#include "debug.h"
+
 // Function Prototyeps -----------------------------------------------------------------------------------------------------------------
 
 /**
@@ -67,4 +69,9 @@ void callback(void* object, uint16_t sample, uint16_t sampleVdd)
         sensor->config->adcValueMax
 
     );
+
+    debugPrintf("Sensor Float: %f \r\n", sensor->value);
+
+    debugPrintf("Sensor Float: %u \r\n", sensor->sample);
+
 }

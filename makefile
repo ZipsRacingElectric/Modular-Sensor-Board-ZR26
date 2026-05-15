@@ -27,10 +27,15 @@ CSRC = $(ALLCSRC) 							\
 	src/peripherals/i2c/daughterADC.c 		\
 											\
 	src/peripherals/adc_sensor.c			\
-	common/src/controls/lerp.c						\
+	common/src/controls/lerp.c				\
 											\
 	src/peripherals/can/msb_can.c 			\
-	src/peripherals/can/msb_transmit.c
+	src/peripherals/can/msb_transmit.c		\
+	src/peripherals/can/msb_receive.c		\
+											\
+	common/src/can/eeprom_can.c				\
+	common/src/can/can_thread.c				\
+	common/src/can/can_node.c
 
 # Common library includes
 include common/src/debug.mk

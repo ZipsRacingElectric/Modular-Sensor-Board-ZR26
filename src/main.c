@@ -1,12 +1,9 @@
 // Includes -------------------------------------------------------------------------------------------------------------------
 
 // Includes
-#include "debug.h"
-
-// ChibiOS
-#include "ch.h"
-#include "hal.h"
 #include "modular_sensor_board.h"
+
+#include "debug.h"
 
 // Interrupts -----------------------------------------------------------------------------------------------------------------
 
@@ -40,20 +37,22 @@ int main (void)
 	if (!msbInit(&msb, &msbConfig)) 
 	{
 		hardFaultCallback();
+		debugPrintf("msbInitFailed");
 		while (true);
 	}
 
 	// Main Loop ----------------------------------------------------------------------------------------------------------------
 	while (true) 
 	{
-		if (!transmitADCValue(&msb.can, msb.sensors))
+		if (!msbSample(&msb)) 
 		{
-			debugPrintf("Failed to transmit\r\n");
+			debugPrintf("msbSample Failed\r\n");
 		}
 		else 
 		{
-			debugPrintf("Can Transmit Successful\r\n");
+			debugPrintf("Sample Taken\r\n");
 		}
-		chThdSleepMilliseconds (500);
+
+		chThdSleepMilliseconds(200);
 	}
 }

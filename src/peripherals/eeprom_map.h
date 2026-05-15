@@ -11,6 +11,7 @@
 // Includes --------------------------------------------------------------------------------------------------------------------------------
 
 #include "peripherals/i2c/mc24lc32.h"
+#include "adc_sensor.h"
 
 //#include "peripherals/i2c/max11614.h"
 
@@ -21,26 +22,16 @@ typedef struct
     /// @brief First 16 bytes on EEPROM reserved for magic string  
     uint8_t pad0 [16]; // Address 0x0000
 
-    /// @brief Can Status Message, should be different for different MSBs in car
-    uint8_t CAN_STATUS; // Address 0x0010
+    uint8_t sensorCount; // Address 0x0010
 
-    // 3 bytes of padding due to float datatype alignment 
-    uint8_t pad1 [3]; // Address 0x0011
+    uint8_t differentiableCount; // Address 0x0011
 
-    /// @brief Min range of daughter ADC sample
-    uint16_t sampleMin; // Address  0x0014
+    /// @brief Pad 2 bytes to align sensor configs to 0x0014
+    uint8_t pad1 [2]; // Address 0x0012
 
-    /// @brief Max range of daughter ADC sample
-    uint16_t sampleMax; // Address 0x0018
-
-    /// @brief Min range of daughter ADC value
-    float valueMin; // Address 0x0020
-
-    /// @brief Max range of daughter ADC value
-    float valueMax; // Address 0x0022
+    adcSensorConfig_t sensorConfigs[MAX_SENSOR_COUNT]; // Address 0x0014
 
 } msbEepromMap_t;
-
 
 // Functions ----------------------------------------------------------------------------------------------------------------------------
 

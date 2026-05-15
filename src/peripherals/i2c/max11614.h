@@ -12,6 +12,7 @@
 
 #include "hal.h"
 #include "daughterADC.h"
+#include "peripherals/adc_sensor.h"
 
 // Bit Position Macros Setup Byte --------------------------------------------------------------------------------------------
 
@@ -109,8 +110,7 @@ typedef enum
 
 typedef struct 
 {
-    uint16_t differentiable[2]; // 2 Differentiable Sensors AIN0/1 and AIN2/3
-    uint16_t singleEnded[4];    // 4 Single Ended Sensors AIN4 through AIN7
+    uint16_t channels[MAX_SENSOR_COUNT]; 
 
 } max11614Results_t;
 
@@ -128,9 +128,9 @@ typedef struct
 {
     const max11614Config_t* config;
     daughterADC_t dADC;
+    daughterADCConfig_t dADCConfig;
 
     uint8_t setupByte;
-    uint8_t configDiff;
 
 } max11614_t;
 
@@ -172,6 +172,6 @@ uint8_t max11614BuildConfigByte(max11614ScanMode_t scan, uint8_t channelSelect, 
  * @param max11614 Pointer to the object being sampled.
  * @return True if successful, False if I2C transmission failed.
  */
-bool max11614ReadChannels(max11614_t* max11614, max11614Results_t* results);
+bool max11614ReadChannels(max11614_t* max11614, max11614Results_t* results, uint8_t diffCount, uint8_t totalSensors);
 
 #endif // MAX11614_H

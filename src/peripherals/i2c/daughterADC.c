@@ -5,7 +5,8 @@
 
 bool daughterADCInit(daughterADC_t *dADC, const daughterADCConfig_t *config) 
 {
-    if (dADC == NULL || config == NULL) {
+    if (dADC == NULL || config == NULL) 
+    {
         return false;
     }
 
@@ -27,7 +28,6 @@ bool write8bit(daughterADC_t* dADC, uint8_t data)
     #endif // I2C_USE_MUTUAL_EXCLUSION
 
     status = i2cMasterTransmitTimeout(dADC->config->i2c, dADC->config->addr, txbuf, sizeof txbuf, NULL, 0, dADC->config->timeout);
-
     #if I2C_USE_MUTUAL_EXCLUSION
     i2cReleaseBus(dADC->config->i2c);
     #endif // I2C_USE_MUTUAL_EXCLUSION
@@ -44,7 +44,7 @@ bool read8bit(daughterADC_t* dADC, uint8_t* value)
     i2cAcquireBus(dADC->config->i2c);
     #endif // I2C_USE_MUTUAL_EXCLUSION
 
-    status = i2cMasterTransmitTimeout(dADC->config->i2c, dADC->config->addr, NULL, 0, &rxbuf, sizeof rxbuf, dADC->config->timeout);
+    status = i2cMasterReceiveTimeout(dADC->config->i2c, dADC->config->addr, &rxbuf, sizeof rxbuf, dADC->config->timeout);
 
     if (status == MSG_OK) {
         *value = rxbuf;
@@ -87,7 +87,7 @@ bool read12bit(daughterADC_t* dADC, uint16_t* value)
     i2cAcquireBus(dADC->config->i2c);
     #endif // I2C_USE_MUTUAL_EXCLUSION
     
-    status = i2cMasterTransmitTimeout(dADC->config->i2c, dADC->config->addr, NULL, 0, rxbuf, sizeof rxbuf, dADC->config->timeout);
+    status = i2cMasterReceiveTimeout(dADC->config->i2c, dADC->config->addr, rxbuf, sizeof rxbuf, dADC->config->timeout);
     
     if (status == MSG_OK) {
         *value = ((uint16_t)rxbuf[0] << 8) | rxbuf[1];

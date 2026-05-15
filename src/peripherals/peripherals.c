@@ -14,9 +14,18 @@ virtualEeprom_t virtualEeprom;
 bool peripheralsInit(const I2CConfig* i2cConfig, const mc24lc32Config_t* eepromConfig) 
 {
     // I2C 1 Driver Initialization.
-    if (i2cStart(&I2CD1, i2cConfig) != MSG_OK ) 
+    i2cStart(&I2CD1, i2cConfig);
+    if (I2CD1.state !=I2C_READY)
     {
-        debugPrintf("I2C Init Failed\r\n");
+        debugPrintf("I2C1 Init Failed\r\n");
+        return false;
+    }
+
+    // I2C 2 Driver Initialization.
+    i2cStart(&I2CD2, i2cConfig);
+    if (I2CD2.state !=I2C_READY)
+    {
+        debugPrintf("I2C2 Init Failed\r\n");
         return false;
     }
 
@@ -28,20 +37,12 @@ bool peripheralsInit(const I2CConfig* i2cConfig, const mc24lc32Config_t* eepromC
     }
     if (physicalEeprom.state == MC24LC32_STATE_INVALID) 
     {
-        // Write default values, but do not validate EEPROM state, so someone has to manually validate
-        float defaultRawMin = 0.0f;
-        float defaultRawMax = 4095.0f;
-        float defaultUnitMin = 0.0f;
-        float defaultUnitMax = 100.0f;
+        debugPrintf("EEPROM invalid - must configure correctly before use.\r\n");
+        
+        // TODO (Nowak):
+            // Flash fault LED
+            // Transmit CAN Error to dashboard
 
-        mc24lc32Write(&physicalEeprom, offsetof(msbEepromMap_t, sampleMin), 
-            &defaultRawMin, sizeof(float));
-        mc24lc32Write(&physicalEeprom, offsetof(msbEepromMap_t, sampleMax), 
-            &defaultRawMax, sizeof(float));
-        mc24lc32Write(&physicalEeprom, offsetof(msbEepromMap_t, valueMin), 
-            &defaultUnitMin, sizeof(float));
-        mc24lc32Write(&physicalEeprom, offsetof(msbEepromMap_t, valueMax), 
-            &defaultUnitMax, sizeof(float));
     }
 
     return true;

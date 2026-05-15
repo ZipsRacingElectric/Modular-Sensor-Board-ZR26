@@ -231,21 +231,21 @@
         Mode="Alternate"
         Alternate="4" />
       <pin10
-        ID=""
-        Type="PushPull"
+        ID="I2C2_SCL"
+        Type="OpenDrain"
         Level="High"
         Speed="Minimum"
         Resistor="PullUp"
-        Mode="Input"
-        Alternate="0" />
+        Mode="Alternate"
+        Alternate="4" />
       <pin11
-        ID=""
-        Type="PushPull"
+        ID="I2C2_SDA"
+        Type="OpenDrain"
         Level="High"
         Speed="Minimum"
         Resistor="PullUp"
-        Mode="Input"
-        Alternate="0" />
+        Mode="Alternate"
+        Alternate="4" />
       <pin12
         ID=""
         Type="PushPull"

@@ -22,6 +22,9 @@
 
 #include "peripherals/can/msb_can.h"
 #include "peripherals/can/msb_transmit.h"
+#include "peripherals/can/msb_receive.h"
+
+// Globals --------------------------------------------------------------------------------------------------------------------
 
 // Configs --------------------------------------------------------------------------------------------------------------------
 typedef struct {
@@ -33,16 +36,22 @@ typedef struct {
 
     const msbConfig_t* config;
 
+    /// @brief Actual sensor count for this board (Read from EEPROM)
+    uint8_t sensorCount;
+
+    /// @brief How many sensors are differentiable
+    uint8_t differentiableCount;
+
     max11614_t adc;
 
     max11614Results_t adcResults;
 
     msbCan_t can;
 
-    adcSensor_t sensors[6]; // 2 differntial + 4 single ended
+    adcSensor_t sensors[MAX_SENSOR_COUNT];
 
-    /// @brief The configuration to use on the 6 differnt sensors, gotten from EEPROM
-    adcSensorConfig_t* sensorConfigs[6];
+    /// @brief The configuration to use on the sensors, gotten from EEPROM
+    adcSensorConfig_t sensorConfigs[MAX_SENSOR_COUNT];
 
 } msb_t;
 

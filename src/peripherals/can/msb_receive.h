@@ -11,10 +11,18 @@
 // Includes -------------------------------------------------------------------------------------------------------------------
 
 #include "msb_can.h"
+#include "can/can_thread.h"
 #include "can/eeprom_can.h"
 #include "peripherals/peripherals.h"
 
 // Functions ------------------------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Starts the CAN receive thread, listening for EEPROM CLI messages
+ * @note Must be called after msbCanInit 
+ *
+ */
+void msbReceiveStart(void);
 
 /**
  * @brief 

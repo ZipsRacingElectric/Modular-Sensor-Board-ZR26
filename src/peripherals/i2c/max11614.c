@@ -30,14 +30,13 @@ bool max11614Init(max11614_t* max11614, const max11614Config_t* config)
     max11614->config = config;
 
     // Configure and intialize daughterADC I2C helper functions
-    daughterADCConfig_t dADCConfig = 
+    max11614->dADCConfig = (daughterADCConfig_t) 
     {
         .addr = config->addr,
         .i2c = config->i2c,
         .timeout = config->timeout,
     };
-
-    if (!daughterADCInit(&max11614->dADC, &dADCConfig)) return false;
+    if (!daughterADCInit(&max11614->dADC, &max11614->dADCConfig)) return false;
 
     // Create Setup Byte
     max11614->setupByte = max11614BuildSetupByte(
@@ -47,15 +46,6 @@ bool max11614Init(max11614_t* max11614, const max11614Config_t* config)
         MAX11614_RST_NORMAL         // No reset
     );
 
-    // Create Differentiable Channels Config Byte
-    max11614->configDiff = max11614BuildConfigByte(
-        MAX11614_SCAN_AIN0_TO_CS,    // Scan from channel 0 - 3
-        MAX11614_CS_AIN3,   // CS = Channel 3 
-        MAX11614_DIFFERENTIABLE
-    );
-
-    // (NOTE): Single Ended Channels Config Byte not built in init, as it changes per channel
-    // Is built inside of max11614ReadChannel
 
     // Write setupByte 
     write8bit(&max11614->dADC, max11614->setupByte);
@@ -64,26 +54,49 @@ bool max11614Init(max11614_t* max11614, const max11614Config_t* config)
     return true;
 }
 
-bool max11614ReadChannels(max11614_t* max11614, max11614Results_t *results)
+bool max11614ReadChannels(max11614_t* max11614, max11614Results_t *results, uint8_t diffCount, uint8_t totalSensors)
 {
+    if (max11614 == NULL || results == NULL) return false;
+
     bool status = true;
 
-    // Read differential channels AIN0/1 and AIN2/3
-    status &= write8bit(&max11614->dADC, max11614->configDiff);
-    status &= read12bit(&max11614->dADC, &results->differentiable[0]);
-    status &= read12bit(&max11614->dADC, &results->differentiable[1]); 
+    // Each differential sensor occupies two channels
+    uint8_t diffChannelCount = diffCount * 2;
 
-    // Build Single Ended Channels Config Byte inside of for loop.
-    // MAX11614 Cannot Scan Upper Half of channels, must scan each chanel one at a time. 
-    for (int i = 0; i < 4; i++)
+    // Read Differentiable Channels
+    if (diffCount > 0) 
     {
-        uint8_t configSingle = max11614BuildConfigByte(
-            MAX11614_SCAN_SINGLE,
-            MAX11614_CS_CHANNEL(i + 4),     // Scan Channels AIN4 - AIN7, shift for loop up by 4 
-            MAX11614_SINGLE_ENDED
+        uint8_t configDiff = max11614BuildConfigByte(
+            MAX11614_SCAN_AIN0_TO_CS,
+            MAX11614_CS_CHANNEL(diffChannelCount - 1), // Scan starts at AIN0, must offset by 1
+            MAX11614_DIFFERENTIABLE 
         );
-        status &= write8bit(&max11614->dADC, configSingle);
-        status &= read12bit(&max11614->dADC, &results->singleEnded[i]);
+        status &= write8bit(&max11614->dADC, configDiff);
+
+        for (int i = 0; i < diffCount; i++)
+        {
+            status &= read12bit(&max11614->dADC, &results->channels[i]);
+        }
+    }
+
+    uint8_t singleEndedCount = totalSensors - diffCount;
+
+     // Read Single Ended Sensors
+    if (singleEndedCount > 0)
+    {
+        for (int i = 0; i < singleEndedCount; i++)
+        {
+            uint8_t physicalChannel = diffChannelCount + i;
+            uint8_t configSingle = max11614BuildConfigByte(
+                MAX11614_SCAN_SINGLE,
+                MAX11614_CS_CHANNEL(physicalChannel),
+                MAX11614_SINGLE_ENDED
+            );
+
+            status &= write8bit(&max11614->dADC, configSingle);
+            // Single ended results are stored after the differentiable sensors results
+            status &= read12bit(&max11614->dADC, &results->channels[diffCount + i]);
+        }
     }
     return status;
 }
