@@ -48,11 +48,6 @@ int main (void)
 		{
 			debugPrintf("msbSample Failed\r\n");
 		}
-		else 
-		{
-			debugPrintf("Sample Taken\r\n");
-		}
-
 		chThdSleepMilliseconds(200);
 	}
 }

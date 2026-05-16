@@ -34,7 +34,7 @@ static const max11614Config_t ADC_CONFIG =
     .addr = 0x33,
     .i2c = &I2CD2,
     .timeout = TIME_MS2I(20),
-    .sampleVdd = 4096,     // Using internal reference voltage 4.096V
+    .sampleVdd = MAX11614_REF_MV
 };
 
 /// @brief Configuration of the Can Driver
@@ -152,6 +152,5 @@ bool msbSample (msb_t* msb) {
     }
 
     transmitADCValue(&msbCan, msb->sensors, msb->sensorCount);
-
     return true;
 }

@@ -27,6 +27,9 @@ bool adcSensorInit(adcSensor_t *sensor, const adcSensorConfig_t *config)
     sensor->sample = 0;
     sensor->value = 0.0f;
 
+    // TODO NOWAK: Hardcoded all sensors to voltage sensor type, will change once programmed into the EEPROM
+    sensor->type = VOLTAGE_SENSOR;
+
     // Validate the configuration
     if (config->adcSampleMin >= config->adcSampleMax) 
         sensor->state = ANALOG_SENSOR_CONFIG_INVALID;
@@ -72,6 +75,6 @@ void callback(void* object, uint16_t sample, uint16_t sampleVdd)
 
     debugPrintf("Sensor Float: %f \r\n", sensor->value);
 
-    debugPrintf("Sensor Float: %u \r\n", sensor->sample);
+    debugPrintf("Sensor Raw: %u \r\n", sensor->sample);
 
 }

@@ -40,17 +40,17 @@ bool max11614Init(max11614_t* max11614, const max11614Config_t* config)
 
     // Create Setup Byte
     max11614->setupByte = max11614BuildSetupByte(
-        MAX11614_REF_INTERNAL_ON,   // Internal 4.096V, always on
+        MAX11614_REF_SEL,           // Configured based on macro in .h file
         MAX11614_CLK_INTERNAL,      // Internal clock
         MAX11614_UNIPOLAR,     // 0 to VREF
         MAX11614_RST_NORMAL         // No reset
     );
 
-
-    // Write setupByte 
+    // Write Setup Byte 
     write8bit(&max11614->dADC, max11614->setupByte);
-    chThdSleepMilliseconds(10);     // Allow Internal Refernce Voltage to wake up
-
+    #if MAX11614_USE_INTERNAL_REF
+        chThdSleepMilliseconds(10);     // Allow Internal Refernce Voltage to wake up
+    #endif 
     return true;
 }
 

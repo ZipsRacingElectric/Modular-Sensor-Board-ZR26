@@ -26,8 +26,17 @@
 
 // Configs -----------------------------------------------------------------------------------------------------------------
 
-typedef struct
+/// @brief Determines which conversion macro is used when packaging sensor data into CAN Frame..
+/// @brief To add new sensor type, create a corresponding TO_WORD and scaling macro in msb_transmit.c
+typedef enum 
 {
+    VOLTAGE_SENSOR,
+    TERMISTOR,
+    STRAIN_GAUGE
+} adcSensorType_t;
+
+typedef struct
+{   
     /// @brief The aboslute minimum sample that can be taken from a daughter ADC.
     uint16_t adcSampleMin;
 
@@ -48,6 +57,7 @@ typedef struct
     const adcSensorConfig_t* config;
     uint16_t sample;
     float value;
+    adcSensorType_t type;
 
 } adcSensor_t;
 

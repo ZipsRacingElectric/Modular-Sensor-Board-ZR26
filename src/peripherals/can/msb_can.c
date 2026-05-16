@@ -17,3 +17,5 @@ bool msbCanInit(msbCan_t* can, const msbCanConfig_t* config)
 
     return true;
 }
+
+

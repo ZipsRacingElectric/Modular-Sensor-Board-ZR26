@@ -46,6 +46,19 @@
 #define MAX11614_CS_AIN6                MAX11614_CS_CHANNEL(6)
 #define MAX11614_CS_AIN7                MAX11614_CS_CHANNEL(7)
 
+// Referene Selection --------------------------------------------------------------------------------------------------------
+
+// Switch between 0 (external reference) and 1 (internal referenece)
+#define MAX11614_USE_INTERNAL_REF   0
+
+#if MAX11614_USE_INTERNAL_REF
+    #define MAX11614_REF_SEL    MAX11614_REF_INTERNAL_ON
+    #define MAX11614_REF_MV     4096 // Millivolts in ADC
+#else 
+    #define MAX11614_REF_SEL    MAX11614_REF_EXTERNAL
+    #define MAX11614_REF_MV     5000 // Millivolts on MSB
+#endif 
+
 // Enums ---------------------------------------------------------------------------------------------------------------------
 
 /// @brief Bit Determining Setup or Config Byte of MAX11614
