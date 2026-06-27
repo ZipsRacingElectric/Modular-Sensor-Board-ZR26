@@ -17,29 +17,28 @@ ALLINC += src
 # Source files
 CSRC = $(ALLCSRC) 							\
 	src/main.c 								\
-	src/modular_sensor_board.c 				\
 											\
-	common/src/peripherals/i2c/mc24lc32.c 	\
-	src/peripherals/peripherals.c 			\
-	src/peripherals/eeprom_map.c 			\
-											\
+	src/peripherals.c						\
+	src/peripherals/eeprom_map.c			\
 	src/peripherals/i2c/max11614.c 			\
-	src/peripherals/i2c/daughterADC.c 		\
+	src/peripherals/i2c/daughterADC.c		\
 											\
-	src/peripherals/adc_sensor.c			\
-	common/src/controls/lerp.c				\
-											\
-	src/peripherals/can/msb_can.c 			\
-	src/peripherals/can/msb_transmit.c		\
-	src/peripherals/can/msb_receive.c		\
-											\
-	common/src/can/eeprom_can.c				\
-	common/src/can/can_thread.c				\
-	common/src/can/can_node.c
+	src/can.c								\
+	src/can/receive.c						\
+	src/can/transmit.c
 
 # Common library includes
+
 include common/src/debug.mk
 include common/src/fault_handler.mk
+
+include common/src/peripherals/interface/eeprom.mk
+include common/src/peripherals/adc/analog_linear.mk
+include common/src/peripherals/adc/thermistor_pulldown.mk
+include common/src/peripherals/i2c/mc24lc32.mk
+
+include common/src/can/eeprom_can.mk
+include common/src/can/can_thread.mk
 
 # Compiler flags
 USE_OPT += -Og -Wall -Wextra
@@ -57,7 +56,7 @@ UINCDIR +=
 ULIBDIR +=
 
 # Libraries
-ULIBS +=
+ULIBS += -lm
 
 # Common toolchain includes
 include common/common.mk

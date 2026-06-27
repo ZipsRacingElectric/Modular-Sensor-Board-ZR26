@@ -12,7 +12,10 @@
 
 #include "hal.h"
 #include "daughterADC.h"
-#include "peripherals/adc_sensor.h"
+
+// Constants -----------------------------------------------------------------------------------------------------------------
+
+#define MAX11614_CHANNEL_COUNT 8
 
 // Bit Position Macros Setup Byte --------------------------------------------------------------------------------------------
 
@@ -123,8 +126,7 @@ typedef enum
 
 typedef struct 
 {
-    uint16_t channels[MAX_SENSOR_COUNT]; 
-
+    uint16_t channels[MAX11614_CHANNEL_COUNT]; 
 } max11614Results_t;
 
 // ADC Config --------------------------------------------------------------------------------------------------------------

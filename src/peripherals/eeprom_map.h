@@ -1,45 +1,50 @@
 #ifndef EEPROM_MAP_H
 #define EEPROM_MAP_H
 
-// EEPROM Map --------------------------------------------------------------------------------------------------------
+// EEPROM Map -----------------------------------------------------------------------------------------------------------------
 //
 // Author: Jake Nowak
 // Date Created: 2026.03.11
 //
 // Description: EEPROM Map for the Modular Sensor Board
 
-// Includes --------------------------------------------------------------------------------------------------------------------------------
+// Includes -------------------------------------------------------------------------------------------------------------------
 
-#include "peripherals/i2c/mc24lc32.h"
-#include "adc_sensor.h"
+// Includes
+#include "peripherals/adc/analog_linear.h"
+#include "peripherals/adc/thermistor_pulldown.h"
 
-//#include "peripherals/i2c/max11614.h"
+// Datatypes ------------------------------------------------------------------------------------------------------------------
 
-// Config ----------------------------------------------------------------------------------------------------------------------------------
-
-typedef struct  
+typedef struct
 {
-    /// @brief First 16 bytes on EEPROM reserved for magic string  
-    uint8_t pad0 [16]; // Address 0x0000
+	/// @brief First 16 bytes on EEPROM reserved for magic string
+	uint8_t pad0 [16];
 
-    uint8_t sensorCount; // Address 0x0010
+	/// @brief Configuration of the RL damper position sensor. Address 0x0010
+	linearSensorConfig_t damperPositionRlConfig;
 
-    uint8_t differentiableCount; // Address 0x0011
+	/// @brief Configuration of the RR damper position sensor. Address 0x001C
+	linearSensorConfig_t damperPositionRrConfig;
 
-    /// @brief Pad 2 bytes to align sensor configs to 0x0014
-    uint8_t pad1 [2]; // Address 0x0012
+	/// @brief Configuration of the cooling temp sensors. Address 0x0028
+	thermistorBetaPulldownConfig_t thermistorConfig;
 
-    adcSensorConfig_t sensorConfigs[MAX_SENSOR_COUNT]; // Address 0x0014
+	/// @brief Configuration of the FL damper position sensor. Address 0x0040
+	linearSensorConfig_t damperPositionFlConfig;
 
-} msbEepromMap_t;
+	/// @brief Configuration of the FR damper position sensor. Address 0x004C
+	linearSensorConfig_t damperPositionFrConfig;
+} eepromMap_t;
 
-// Functions ----------------------------------------------------------------------------------------------------------------------------
+// Functions ------------------------------------------------------------------------------------------------------------------
 
-/**
- * @brief Get the Eeprom Map object
- * 
- * @return Casted pointer to EEPROM Map
- */
-msbEepromMap_t* getEepromMap(void);
+/// @brief Handles a write to the 'write-only' section of the device's virtual EEPROM.
+/// @note Currently is not implemented.
+bool writeonlyWrite (void* eeprom, uint16_t addr, const void* data, uint16_t dataCount);
+
+/// @brief Handles a read from the 'read-only' section of the device's virtual EEPROM.
+/// @note Used for reading temporary data.
+bool readonlyRead (void* eeprom, uint16_t addr, void* data, uint16_t dataCount);
 
 #endif // EEPROM_MAP_H
