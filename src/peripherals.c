@@ -15,16 +15,6 @@ eepromMap_t* eepromMap;
 
 max11614_t adc;
 
-linearSensor_t damperPositionRl;
-linearSensor_t damperPositionRr;
-linearSensor_t damperPositionFl;
-linearSensor_t damperPositionFr;
-
-thermistorBetaPulldown_t thermistor0;
-thermistorBetaPulldown_t thermistor1;
-thermistorBetaPulldown_t thermistor2;
-thermistorBetaPulldown_t thermistor3;
-
 // Configuration --------------------------------------------------------------------------------------------------------------
 
 /// @brief Configuration of the I2C 1 bus.
@@ -120,40 +110,11 @@ bool peripheralsInit ()
 	mc24lc32Init (&physicalEeprom, &PHYSICAL_EEPROM_CONFIG);
 	eepromMap = (eepromMap_t*) physicalEeprom.cache;
 
-	linearSensorInit (&damperPositionRl, &eepromMap->damperPositionRlConfig);
-	linearSensorInit (&damperPositionRr, &eepromMap->damperPositionRrConfig);
-	linearSensorInit (&damperPositionFl, &eepromMap->damperPositionFlConfig);
-	linearSensorInit (&damperPositionFr, &eepromMap->damperPositionFrConfig);
-
-	thermistorBetaPulldownInit (&thermistor0, &eepromMap->thermistorConfig);
-	thermistorBetaPulldownInit (&thermistor1, &eepromMap->thermistorConfig);
-	thermistorBetaPulldownInit (&thermistor2, &eepromMap->thermistorConfig);
-	thermistorBetaPulldownInit (&thermistor3, &eepromMap->thermistorConfig);
-
 	if (!max11614Init (&adc, &ADC_CONFIG))
 	{
 		debugPrintf ("I2C ADC init failed.\r\n");
 		return false;
 	}
-
-	return true;
-}
-
-bool peripheralsSample ()
-{
-	max11614Results_t adcResults;
-
-	if (!max11614ReadChannels (&adc, &adcResults, 0, 8))
-		return false;
-
-	analogSensorUpdate ((analogSensor_t*) &damperPositionRl, adcResults.channels [0], 4095);
-	analogSensorUpdate ((analogSensor_t*) &damperPositionRr, adcResults.channels [1], 4095);
-	analogSensorUpdate ((analogSensor_t*) &thermistor0, adcResults.channels [2], 4095);
-	analogSensorUpdate ((analogSensor_t*) &thermistor1, adcResults.channels [3], 4095);
-	analogSensorUpdate ((analogSensor_t*) &thermistor2, adcResults.channels [4], 4095);
-	analogSensorUpdate ((analogSensor_t*) &thermistor3, adcResults.channels [5], 4095);
-	analogSensorUpdate ((analogSensor_t*) &damperPositionFl, adcResults.channels [6], 4095);
-	analogSensorUpdate ((analogSensor_t*) &damperPositionFr, adcResults.channels [7], 4095);
 
 	return true;
 }

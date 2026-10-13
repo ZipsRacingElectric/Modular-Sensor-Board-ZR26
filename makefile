@@ -25,7 +25,10 @@ CSRC = $(ALLCSRC) 							\
 											\
 	src/can.c								\
 	src/can/receive.c						\
-	src/can/transmit.c
+	src/can/transmit.c						\
+											\
+	src/modular_config/front_peripherals.c	\
+	src/modular_config/rear_peripherals.c
 
 # Common library includes
 

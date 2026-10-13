@@ -2,7 +2,8 @@
 #include "eeprom_map.h"
 
 // Includes
-#include "peripherals.h"
+#include "modular_config/front_peripherals.h"
+#include "modular_config/rear_peripherals.h"
 
 // C Standard Library
 #include <string.h>

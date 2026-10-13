@@ -3,7 +3,8 @@
 // Includes -------------------------------------------------------------------------------------------------------------------
 
 #include "can.h"
-#include "peripherals.h"
+#include "modular_config/front_peripherals.h"
+#include "modular_config/rear_peripherals.h"
 
 // Conversions ----------------------------------------------------------------------------------------------------------------
 

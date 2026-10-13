@@ -36,30 +36,6 @@ extern eepromMap_t* eepromMap;
 /// @brief The I2C ADC installed on the ADC daughter board.
 extern max11614_t adc;
 
-/// @brief The RL damper position sensor. Installed on ADC channel 0.
-extern linearSensor_t damperPositionRl;
-
-/// @brief The RR damper position sensor. Installed on ADC channel 1.
-extern linearSensor_t damperPositionRr;
-
-/// @brief The FL damper position sensor. Installed on ADC channel 6.
-extern linearSensor_t damperPositionFl;
-
-/// @brief The FR damper position sensor. Installed on ADC channel 7.
-extern linearSensor_t damperPositionFr;
-
-/// @brief The 0th cooling temperature sensor. Installed on ADC channel 2.
-extern thermistorBetaPulldown_t thermistor0;
-
-/// @brief The 1st cooling temperature sensor. Installed on ADC channel 3.
-extern thermistorBetaPulldown_t thermistor1;
-
-/// @brief The 2nd cooling temperature sensor. Installed on ADC channel 4.
-extern thermistorBetaPulldown_t thermistor2;
-
-/// @brief The 3rd cooling temperature sensor. Installed on ADC channel 5.
-extern thermistorBetaPulldown_t thermistor3;
-
 // Functions ------------------------------------------------------------------------------------------------------------------
 
 /**
@@ -67,11 +43,5 @@ extern thermistorBetaPulldown_t thermistor3;
  * @return true if successful, false if a hardware error occurred.
  */
 bool peripheralsInit (void);
-
-/**
- * @brief Samples the latest value of the MSB's peripherals.
- * @return True if successful, false if a hardware error occurred.
- */
-bool peripheralsSample (void);
 
 #endif // PERIPHERALS_H

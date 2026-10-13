@@ -4,17 +4,31 @@
 #include "can.h"
 #include "debug.h"
 
-// Config ---------------------------------------------------------------------------------------------------------------------
+// Modular Sensor Board Config ------------------------------------------------------------------------------------------------
 
+/// @brief Uncomment exactly ONE board configuration to use.
+
+//#define MSB_FRONT
+
+#define MSB_REAR
+
+// Conditional Compiliation --------------------------------------------------------------------------------------------------
+
+#if (defined(MSB_FRONT) + defined(MSB_REAR)) != 1
+	#error "Exactly ONE MSB configuration must be defined."
+#elif defined (MSB_FRONT)
+	#include "modular_config/front_peripherals.h"
+#elif defined (MSB_REAR)
+	#include "modular_config/rear_peripherals.h"
+#endif 
+
+// Global Config ------------------------------------------------------------------------------------------------------------- 
 /// @brief The period to sample/transmit data at.
 #define THREAD_PERIOD TIME_MS2I (1)
 
 // Interrupts -----------------------------------------------------------------------------------------------------------------
 
-void hardFaultCallback (void)
-{
-
-}
+void hardFaultCallback (void) { }
 
 // Entrypoint -----------------------------------------------------------------------------------------------------------------
 
@@ -37,6 +51,18 @@ int main (void)
 		while (true);
 	}
 
+	// Init modular specific peripherals
+	#if defined (MSB_FRONT)
+		if (!frontPeripheralsInit())
+	#elif defined (MSB_REAR)
+		if (!rearPeripheralsInit())
+	#endif 
+		{
+			debugPrintf("MSB sensor init failed");
+			hardFaultCallback();
+			while (true);
+		}
+
 	// Init CAN bus
 	if (!canInterfaceInit (NORMALPRIO))
 	{
@@ -45,27 +71,36 @@ int main (void)
 		while (true);
 	}
 
+	// Main loop 
 	uint16_t index = 0;
 	systime_t timeCurrent = chVTGetSystemTimeX ();
 	while (true)
-	{
-		// Sample the latest sensor values
-		peripheralsSample ();
+	{	
+		#if defined (MSB_FRONT)
+			
+			if (frontPeripheralsSample())
+			{
+				transmitFrontDamperPositionMessage (&CAND1, THREAD_PERIOD);
+			}
 
-		// Transmit said value to the CAN bus
-		transmitRearDamperPositionMessage (&CAND1, THREAD_PERIOD);
-		transmitFrontDamperPositionMessage (&CAND1, THREAD_PERIOD);
+		#elif defined (MSB_REAR)
+			
+			if (rearPeripheralsSample())
+			{
+				transmitRearDamperPositionMessage (&CAND1, THREAD_PERIOD);
 
-		// Only transmit the temp message at 1/10th the frequency, as it does not require high speeds.
-		// TODO(Barach): Since the temperature data is still available at 1kHz, we use an average to downsample more
-		// accurately. That is, the value transmitted is the average of the last 10 measurements.
-		if (index >= 10)
-		{
-			transmitCoolingTempMessage (&CAND1, THREAD_PERIOD);
-			index = 0;
-		}
-		else
-			++index;
+				// Only transmit the temp message at 1/10th the frequency, as it does not require high speeds.
+				// TODO(Barach): Since the temperature data is still available at 1kHz, we use an average to downsample more
+				// accurately. That is, the value transmitted is the average of the last 10 measurements.
+				if (index >= 10)
+				{
+					transmitCoolingTempMessage (&CAND1, THREAD_PERIOD);
+					index = 0;
+				}
+				else
+					++index;
+			}
+		#endif
 
 		// Sleep until the next loop
 		chThdSleepUntilWindowed (timeCurrent, chTimeAddX (timeCurrent, THREAD_PERIOD));
